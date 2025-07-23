@@ -1,10 +1,6 @@
 <template>
   <div class="contact-container">
     <div class="content-wrapper">
-      <h1 class="title">Get In Touch</h1>
-      <p class="subtitle">
-        Have a question, a project idea, or just want to say hello? Drop me a line.
-      </p>
       <form @submit.prevent="handleSubmit" class="contact-form">
         <div class="form-group">
           <label for="name" class="form-label">Name</label>
@@ -63,15 +59,16 @@ const handleSubmit = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Calculate height to fill space between header and footer */
-  min-height: calc(100vh - 152px);
-  background-color: #000000;
   color: #ffffff;
-  padding: 2rem;
   box-sizing: border-box;
 }
 
 .content-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  justify-items: center;
   max-width: 600px;
   width: 100%;
   text-align: center;

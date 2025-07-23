@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-screen flex-col bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+    class="app-container flex min-h-screen flex-col bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-200"
   >
     <Header />
     <main class="container mx-auto flex-grow px-6 py-8">
@@ -17,5 +17,10 @@ import Footer from './components/Footer.vue'
 <style scoped>
 main {
   min-height: 100vh;
+}
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 100vw;
 }
 </style>
