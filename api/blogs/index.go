@@ -1,4 +1,3 @@
-// This file should be placed at: /api/index.go
 package handler
 
 import (

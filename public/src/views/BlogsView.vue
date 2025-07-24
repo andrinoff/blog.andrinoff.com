@@ -21,7 +21,6 @@ export default {
     }
   },
   async mounted() {
-    // This is where you call your backend API
     try {
       const response = await fetch('/api/blogs')
       this.posts = await response.json()
