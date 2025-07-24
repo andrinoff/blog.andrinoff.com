@@ -35,8 +35,8 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	var results []Post
 
 	err := client.DB.From("posts").
-		Order("created_at", false, false).
 		Select("title,created_at", "", false).
+		Order("created_at", "desc", "").
 		Execute(&results)
 
 	if err != nil {

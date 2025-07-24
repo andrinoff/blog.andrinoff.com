@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "vue-cli-service": "^5.0.10",
+    "vue-template-compiler": "^2.7.16"
+  }
+}
