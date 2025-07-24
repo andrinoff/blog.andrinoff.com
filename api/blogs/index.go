@@ -46,7 +46,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Execute the query to get all posts from the "posts" table.
 	// ".order("created_at", &supabase.OrderOpts{Ascending: false})" sorts the results
 	// from the newest entry to the oldest.
-	err = client.DB.From("posts").Select("*").Order("created_at", &supabase.OrderOpts{Ascending: false}).Execute(&results)
+	err = client.DB.From("posts").Select("*").Order("created_at").Execute(&results)
 
 	if err != nil {
 		http.Error(w, "Failed to fetch posts from the database.", http.StatusInternalServerError)
