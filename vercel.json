@@ -2,25 +2,27 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
+      "src": "public/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "buildCommand": "vite build",
+        "outputDirectory": "dist"
       }
     },
     {
-      "src": "api/blogs/index.go",
+      "src": "api/blogs",
       "use": "@vercel/go"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/blogs/index.go"
+      "dest": "/api/blogs"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/public/$1"
     }
-  ]
+  ],
+  "rootDirectory": "public"
 }
