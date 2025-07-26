@@ -5,50 +5,73 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/nedpals/supabase-go"
 )
 
 // Post struct defines the shape of our data.
 type Post struct {
-	ID        int    `json:"id"`
-	Date string `json:"date"`
-	Title     string `json:"title"`
-	Content   string `json:"content"`
-	Category  string `json:"category"`
+	ID       int    `json:"id"`
+	Date     string `json:"date"`
+	Title    string `json:"title"`
+	Content  string `json:"content"`
+	Category string `json:"category"`
+	Slug     string `json:"slug"`
+}
+
+// Generates a URL-friendly slug from a title
+func generateSlug(title string) string {
+	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
 }
 
 // Handler is the main entry point for the Vercel Serverless Function.
-// It handles incoming HTTP requests.
 func Handler(w http.ResponseWriter, r *http.Request) {
-	// Only allow GET requests
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// 1. Initialize the Supabase client from environment variables
 	client := supabase.CreateClient(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_KEY"))
 
-	// 2. Fetch all records from the "posts" table
-	var results []Post 
+	var results []Post
 	err := client.DB.From("posts").Select("*").Execute(&results)
-
-	
-
 	if err != nil {
-		log.Printf("Error fetching data from Supabase: %v", err)
+		log.Printf("Error fetching posts from Supabase: %v", err)
 		http.Error(w, "Could not fetch posts", http.StatusInternalServerError)
 		return
-	} else {
-		log.Printf("Fetched %d posts from Supabase", len(results))
-		log.Printf ("Posts: %+v", results)
 	}
 
-	// 3. Set the response header and encode the results as JSON
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(results); err != nil {
-		log.Printf("Error encoding JSON response: %v", err)
-		http.Error(w, "Could not encode response", http.StatusInternalServerError)
+	// Generate slugs for all posts
+	for i := range results {
+		results[i].Slug = generateSlug(results[i].Title)
+	}
+
+	slug := r.URL.Query().Get("slug")
+	w.Header().Set("Content-Type", "application/json") // Set header for all responses
+
+	if slug != "" {
+		var foundPost *Post
+		for i, post := range results {
+			if post.Slug == slug {
+				foundPost = &results[i]
+				break
+			}
+		}
+
+		if foundPost != nil {
+			if err := json.NewEncoder(w).Encode(foundPost); err != nil {
+				log.Printf("Error encoding JSON response: %v", err)
+				http.Error(w, "Could not encode response", http.StatusInternalServerError)
+			}
+		} else {
+			http.Error(w, "Could not find post", http.StatusNotFound)
+		}
+
+	} else {
+		if err := json.NewEncoder(w).Encode(results); err != nil {
+			log.Printf("Error encoding JSON response: %v", err)
+			http.Error(w, "Could not encode response", http.StatusInternalServerError)
+		}
 	}
 }
