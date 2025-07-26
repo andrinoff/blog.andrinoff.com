@@ -6,14 +6,15 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/supabase-community/supabase-go"
+	supabase "github.com/supabase-community/supabase-go"
 )
 
 // Post represents the structure of your 'posts' table in Supabase.
+// Make sure the json tags match your column names exactly.
 type Post struct {
-	ID        int64     `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
+	ID        int64  `json:"id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
 	CreatedAt string `json:"created_at"`
 }
 
@@ -32,6 +33,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Initialize the Supabase client.
+	// Note: The compiler errors suggest you are using a library compatible with the supabase-community/supabase-go API.
 	client, err := supabase.NewClient(supabaseURL, supabaseKey, nil)
 	if err != nil {
 		http.Error(w, "Failed to initialize Supabase client.", http.StatusInternalServerError)
@@ -41,14 +43,23 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	// --- 2. Fetch Data from Supabase ---
 	var results []Post
-	// Execute the query to get all posts from the "posts" table.
-	// ".Order("created_at", &supabase.OrderOpts{Ascending: false})" sorts the results
-	// from the newest entry to the oldest.
-	err = client.From("posts").Select("*").Order("created_at", &supabase.OrderOpts{Ascending: false}).Execute(&results)
 
+	// Execute the query to get all posts from the "posts" table.
+	// The method signatures are adjusted to match the compiler errors.
+	// .Select() takes columns, count option, and a head flag.
+	// .Order() takes column, order ("asc" or "desc"), and nulls position.
+	// .Execute() returns (data, count, error).
+	data, _, err := client.From("posts").Select("*", "", false).Order("created_at", "desc", "").Execute()
 	if err != nil {
 		http.Error(w, "Failed to fetch posts from the database.", http.StatusInternalServerError)
 		fmt.Println("Error fetching data:", err)
+		return
+	}
+
+	// Unmarshal the raw JSON data into the 'results' slice.
+	if err := json.Unmarshal(data, &results); err != nil {
+		http.Error(w, "Failed to parse database response.", http.StatusInternalServerError)
+		fmt.Println("Error unmarshalling JSON response:", err)
 		return
 	}
 
