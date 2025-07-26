@@ -48,6 +48,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slug := r.URL.Query().Get("slug")
+	w.Header().Set("Content-Type", "application/json") // Set header for all responses
 
 	if slug != "" {
 		var foundPost *Post
@@ -59,13 +60,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if foundPost != nil {
-			json.NewEncoder(w).Encode(foundPost)
+			if err := json.NewEncoder(w).Encode(foundPost); err != nil {
+				log.Printf("Error encoding JSON response: %v", err)
+				http.Error(w, "Could not encode response", http.StatusInternalServerError)
+			}
 		} else {
 			http.Error(w, "Could not find post", http.StatusNotFound)
 		}
 
 	} else {
-		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(results); err != nil {
 			log.Printf("Error encoding JSON response: %v", err)
 			http.Error(w, "Could not encode response", http.StatusInternalServerError)
