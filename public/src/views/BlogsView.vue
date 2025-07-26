@@ -81,14 +81,6 @@ export default {
     this.fetchPosts()
   },
   methods: {
-    // Generates a URL-friendly slug from a title
-    generateSlug(title) {
-      return title
-        .toLowerCase()
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(/[^\w-]+/g, '') // Remove all non-word chars
-    },
-
     // Fetches posts and maps the new JSON structure
     async fetchPosts() {
       const apiUrl = '/api/blogs'
@@ -102,7 +94,7 @@ export default {
           title: post.title,
           category: post.category,
           content: post.content,
-          slug: this.generateSlug(post.title),
+          slug: post.slug, // Use the slug from the API
         }))
       } catch (error) {
         console.error('Error fetching posts:', error)
