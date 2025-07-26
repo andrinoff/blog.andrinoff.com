@@ -41,6 +41,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		log.Printf("Fetched %d posts from Supabase", len(results))
+		log.Printf ("Posts: %+v", results)
 	}
 
 	// 3. Set the response header and encode the results as JSON
