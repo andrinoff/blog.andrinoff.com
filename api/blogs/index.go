@@ -30,13 +30,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	client := supabase.CreateClient(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_KEY"))
 
 	// 2. Fetch all records from the "posts" table
-	var results []Post // Use a slice to hold multiple post records
+	var results []Post 
 	err := client.DB.From("posts").Select("*").Execute(&results)
+
+	
 
 	if err != nil {
 		log.Printf("Error fetching data from Supabase: %v", err)
 		http.Error(w, "Could not fetch posts", http.StatusInternalServerError)
 		return
+	} else {
+		log.Printf("Fetched %d posts from Supabase", len(results))
 	}
 
 	// 3. Set the response header and encode the results as JSON
