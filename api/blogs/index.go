@@ -1,4 +1,3 @@
-// File: api/index.go
 package handler
 
 import (
@@ -11,7 +10,6 @@ import (
 )
 
 // Post represents the structure of your 'posts' table in Supabase.
-// Make sure the json tags match your column names exactly.
 type Post struct {
 	ID        int64     `json:"id"`
 	Title     string    `json:"title"`
@@ -44,9 +42,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// --- 2. Fetch Data from Supabase ---
 	var results []Post
 	// Execute the query to get all posts from the "posts" table.
-	// ".order("created_at", &supabase.OrderOpts{Ascending: false})" sorts the results
+	// ".Order("created_at", &supabase.OrderOpts{Ascending: false})" sorts the results
 	// from the newest entry to the oldest.
-	err = client.DB.From("posts").Select("*").Order("created_at").Execute(&results)
+	err = client.From("posts").Select("*").Order("created_at", &supabase.OrderOpts{Ascending: false}).Execute(&results)
 
 	if err != nil {
 		http.Error(w, "Failed to fetch posts from the database.", http.StatusInternalServerError)
