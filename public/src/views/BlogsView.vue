@@ -87,8 +87,7 @@ export default {
 
     // Fetches posts from your backend API
     async fetchPosts() {
-      // --- IMPORTANT: Change this URL to match your Go backend's endpoint ---
-      const apiUrl = '/api/posts' // Or 'http://localhost:8080/api/posts' etc.
+      const apiUrl = '/api/blogs'
 
       try {
         const response = await axios.get(apiUrl)
