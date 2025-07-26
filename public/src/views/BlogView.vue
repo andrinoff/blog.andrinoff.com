@@ -147,7 +147,9 @@ export default {
 </script>
 
 <style scoped>
-/* CRT Scanlines and Glow Effect */
+* {
+  font-family: monospace, monospace;
+}
 .crt {
   position: relative;
   overflow: hidden;
