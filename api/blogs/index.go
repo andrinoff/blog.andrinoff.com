@@ -1,12 +1,15 @@
-package main
+package handler
 
 import (
-	"fmt"
+	"encoding/json"
+	"log"
+	"net/http"
 	"os"
 
 	"github.com/nedpals/supabase-go"
 )
 
+// Post struct defines the shape of our data.
 type Post struct {
 	ID        int    `json:"id"`
 	CreatedAt string `json:"created_at"`
@@ -14,33 +17,32 @@ type Post struct {
 	Content   string `json:"content"`
 }
 
-func main() {
-	// 1. Initialize the Supabase client
-	// Replace with your actual Supabase project URL and anon key.
-	// It's best practice to load these from environment variables.
-	supabaseURL := os.Getenv("SUPABASE_URL")
-	supabaseKey := os.Getenv("SUPABASE_KEY")
-
-	if supabaseURL == "" || supabaseKey == "" {
-		fmt.Println("Error: SUPABASE_URL and SUPABASE_KEY environment variables must be set.")
-		fmt.Println("Example: export SUPABASE_URL=\"https://your-project-ref.supabase.co\"")
-		fmt.Println("Example: export SUPABASE_KEY=\"your-anon-key\"")
+// Handler is the main entry point for the Vercel Serverless Function.
+// It handles incoming HTTP requests.
+func Handler(w http.ResponseWriter, r *http.Request) {
+	// Only allow GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	client := supabase.CreateClient(supabaseURL, supabaseKey)
+	// 1. Initialize the Supabase client from environment variables
+	client := supabase.CreateClient(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_KEY"))
 
-	// 2. Fetch and sort the data
-	// We will store the results in a slice of Post structs.
-	 var results map[string]interface{}
+	// 2. Fetch all records from the "posts" table
+	var results []Post // Use a slice to hold multiple post records
+	err := client.DB.From("posts").Select("*").Execute(&results)
 
-	 err := supabase.DB.From("posts").Select("*").Single().Execute(&results)
- 	 if err != nil {
-   		 panic(err)
-  	}
+	if err != nil {
+		log.Printf("Error fetching data from Supabase: %v", err)
+		http.Error(w, "Could not fetch posts", http.StatusInternalServerError)
+		return
+	}
 
-	
-	for _, post := range results {
-		fmt.Printf("ID: %d, CreatedAt: %s, Title: %s\n", post.ID, post.CreatedAt, post.Title)
+	// 3. Set the response header and encode the results as JSON
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(results); err != nil {
+		log.Printf("Error encoding JSON response: %v", err)
+		http.Error(w, "Could not encode response", http.StatusInternalServerError)
 	}
 }
