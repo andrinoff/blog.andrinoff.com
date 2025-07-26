@@ -1,75 +1,46 @@
-package handler
+package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	supabase "github.com/supabase-community/supabase-go"
+	"github.com/nedpals/supabase-go"
 )
 
-// Post represents the structure of your 'posts' table in Supabase.
-// Make sure the json tags match your column names exactly.
 type Post struct {
-	ID        int64  `json:"id"`
+	ID        int    `json:"id"`
+	CreatedAt string `json:"created_at"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
-	CreatedAt string `json:"created_at"`
 }
 
-// Handler is the main Vercel serverless function entrypoint.
-func Handler(w http.ResponseWriter, r *http.Request) {
-	// --- 1. Set up Supabase Client ---
-	// Retrieve Supabase URL and Key from environment variables.
-	// These will be set in your Vercel project settings.
+func main() {
+	// 1. Initialize the Supabase client
+	// Replace with your actual Supabase project URL and anon key.
+	// It's best practice to load these from environment variables.
 	supabaseURL := os.Getenv("SUPABASE_URL")
-	supabaseKey := os.Getenv("SUPABASE_ANON_KEY")
+	supabaseKey := os.Getenv("SUPABASE_KEY")
 
 	if supabaseURL == "" || supabaseKey == "" {
-		http.Error(w, "Server configuration error: Supabase environment variables not set.", http.StatusInternalServerError)
-		fmt.Println("Error: SUPABASE_URL or SUPABASE_ANON_KEY environment variable is not set.")
+		fmt.Println("Error: SUPABASE_URL and SUPABASE_KEY environment variables must be set.")
+		fmt.Println("Example: export SUPABASE_URL=\"https://your-project-ref.supabase.co\"")
+		fmt.Println("Example: export SUPABASE_KEY=\"your-anon-key\"")
 		return
 	}
 
-	// Initialize the Supabase client.
-	// Note: The compiler errors suggest you are using a library compatible with the supabase-community/supabase-go API.
-	client, err := supabase.NewClient(supabaseURL, supabaseKey, nil)
-	if err != nil {
-		http.Error(w, "Failed to initialize Supabase client.", http.StatusInternalServerError)
-		fmt.Println("Error initializing Supabase client:", err)
-		return
-	}
+	client := supabase.CreateClient(supabaseURL, supabaseKey)
 
-	// --- 2. Fetch Data from Supabase ---
-	var results []Post
+	// 2. Fetch and sort the data
+	// We will store the results in a slice of Post structs.
+	 var results map[string]interface{}
 
-	// Execute the query to get all posts from the "posts" table.
-	// The method signatures are adjusted to match the compiler errors.
-	// .Select() takes columns, count option, and a head flag.
-	// .Order() takes column, order ("asc" or "desc"), and nulls position.
-	// .Execute() returns (data, count, error).
-	data, _, err := client.From("posts").Select("*", "", false).Order("created_at", "desc", "").Execute()
-	if err != nil {
-		http.Error(w, "Failed to fetch posts from the database.", http.StatusInternalServerError)
-		fmt.Println("Error fetching data:", err)
-		return
-	}
+	 err := supabase.DB.From("posts").Select("*").Single().Execute(&results)
+ 	 if err != nil {
+   		 panic(err)
+  	}
 
-	// Unmarshal the raw JSON data into the 'results' slice.
-	if err := json.Unmarshal(data, &results); err != nil {
-		http.Error(w, "Failed to parse database response.", http.StatusInternalServerError)
-		fmt.Println("Error unmarshalling JSON response:", err)
-		return
-	}
-
-	// --- 3. Send JSON Response ---
-	// Set the content type header to application/json.
-	w.Header().Set("Content-Type", "application/json")
-
-	// Encode the fetched posts slice into a JSON array and write it to the response.
-	if err := json.NewEncoder(w).Encode(results); err != nil {
-		http.Error(w, "Failed to encode response.", http.StatusInternalServerError)
-		fmt.Println("Error encoding JSON response:", err)
+	
+	for _, post := range results {
+		fmt.Printf("ID: %d, CreatedAt: %s, Title: %s\n", post.ID, post.CreatedAt, post.Title)
 	}
 }
