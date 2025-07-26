@@ -102,7 +102,7 @@ export default {
           date: post.Date,
           title: post.Title,
           category: post.Category, // `post.Category` is a string, e.g., "frontend"
-          contents: post.Contents,
+          content: post.Content,
           slug: this.generateSlug(post.Title),
         }))
       } catch (error) {
