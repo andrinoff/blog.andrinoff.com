@@ -96,14 +96,13 @@ export default {
       try {
         const response = await axios.get(apiUrl)
 
-        // Map the API response keys (ID, Title, etc.) to the keys used by the component (id, title, etc.)
         this.posts = response.data.map((post) => ({
-          id: post.ID,
-          date: post.Date,
-          title: post.Title,
-          category: post.Category, // `post.Category` is a string, e.g., "frontend"
-          content: post.Content,
-          slug: this.generateSlug(post.Title),
+          id: post.id,
+          date: post.date,
+          title: post.title,
+          category: post.category,
+          content: post.content,
+          slug: this.generateSlug(post.title),
         }))
       } catch (error) {
         console.error('Error fetching posts:', error)
