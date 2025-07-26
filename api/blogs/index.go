@@ -12,9 +12,10 @@ import (
 // Post struct defines the shape of our data.
 type Post struct {
 	ID        int    `json:"id"`
-	CreatedAt string `json:"created_at"`
+	Date string `json:"date"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
+	Category  string `json:"category"`
 }
 
 // Handler is the main entry point for the Vercel Serverless Function.
