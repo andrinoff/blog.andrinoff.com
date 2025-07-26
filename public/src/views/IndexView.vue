@@ -1,29 +1,21 @@
 <template>
   <div class="home-container">
     <div class="content">
-      <h1 class="title neon-text-logo">andrinoff<span>.</span></h1>
+      <h1 class="title neon-text-logo">andrinoff</h1>
       <p class="subtitle">Welcome to my digital space. Explore my thoughts and projects.</p>
-      <router-link to="/blogs" class="neon-button">Enter Blog</router-link>
+      <router-link to="/blogs" class="neon-button">Enter</router-link>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-// This component uses <script setup> for a more concise syntax.
-// No additional script logic is needed for this simple landing page.
-</script>
-
 <style scoped>
-/* Scoped styles for the HomeView component */
-
 .home-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   text-align: center;
-  /* Calculate height to fill space between header and footer (approx. 68px + 84px) */
-  min-height: calc(100vh - 152px);
-  background-color: #000000;
+  justify-items: center;
   color: #ffffff;
   padding: 2rem;
   box-sizing: border-box;
