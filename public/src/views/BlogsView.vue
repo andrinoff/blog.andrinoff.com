@@ -63,13 +63,17 @@ export default {
       this.categories.forEach((cat) => {
         groups[cat] = []
       })
+
       this.posts.forEach((post) => {
-        post.category.forEach((tag) => {
-          if (groups[tag]) {
-            groups[tag].push(post)
-          }
-        })
+        // Get the category name (which is now a string)
+        const categoryName = post.category
+
+        // Check if a group for this category exists and add the post
+        if (groups[categoryName]) {
+          groups[categoryName].push(post)
+        }
       })
+
       return groups
     },
   },
@@ -85,17 +89,21 @@ export default {
         .replace(/[^\w-]+/g, '') // Remove all non-word chars
     },
 
-    // Fetches posts from your backend API
+    // Fetches posts and maps the new JSON structure
     async fetchPosts() {
       const apiUrl = '/api/blogs'
 
       try {
         const response = await axios.get(apiUrl)
 
-        // Add the 'slug' to each post object after fetching
+        // Map the API response keys (ID, Title, etc.) to the keys used by the component (id, title, etc.)
         this.posts = response.data.map((post) => ({
-          ...post,
-          slug: this.generateSlug(post.title),
+          id: post.ID,
+          date: post.Date,
+          title: post.Title,
+          category: post.Category, // `post.Category` is a string, e.g., "frontend"
+          contents: post.Contents,
+          slug: this.generateSlug(post.Title),
         }))
       } catch (error) {
         console.error('Error fetching posts:', error)
@@ -110,7 +118,6 @@ export default {
   },
 }
 </script>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
 
