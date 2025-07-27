@@ -32,7 +32,7 @@
               Published: {{ formatDate(post.date) }} in [{{ post.category }}]
             </p>
             <div
-              class="prose prose-invert max-w-none prose-p:text-green-400/90 prose-a:text-cyan-400 hover:prose-a:text-cyan-300"
+              class="prose-custom max-w-none prose-p:text-green-400/90 prose-a:text-cyan-400 hover:prose-a:text-cyan-300"
               v-html="parsedContent"
             ></div>
 
@@ -173,6 +173,26 @@ export default {
   },
 }
 </script>
+
+<style>
+.prose-custom pre {
+  background-color: #1a202c;
+  color: #a0aec0;
+  padding: 1em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+}
+.prose-custom code {
+  font-family: 'Fira Code', monospace;
+}
+
+.prose-custom pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: #a0aec0;
+}
+</style>
 
 <style scoped>
 * {
