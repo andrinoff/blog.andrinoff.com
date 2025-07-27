@@ -33,7 +33,7 @@
             </p>
             <div
               class="prose prose-invert max-w-none prose-p:text-green-400/90 prose-a:text-cyan-400 hover:prose-a:text-cyan-300"
-              v-html="post.content"
+              v-html="parsedContent"
             ></div>
 
             <div class="flex items-center mt-8">
@@ -61,6 +61,9 @@
 
 <script>
 import axios from 'axios'
+import { marked } from 'marked'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/atom-one-dark.css'
 
 export default {
   data() {
@@ -75,6 +78,31 @@ export default {
         done: false,
       },
     }
+  },
+  computed: {
+    parsedContent() {
+      if (!this.post) {
+        return ''
+      }
+      const renderer = new marked.Renderer()
+      const tokens = marked.lexer(this.post.content)
+      // This is a hack to make sure that the code blocks are highlighted
+      // correctly.  It's not ideal, but it works.
+      for (const token of tokens) {
+        if (token.type === 'code') {
+          token.lang = token.lang.replace(/(\s|:).*/, '')
+        }
+      }
+      return marked.parser(tokens, {
+        renderer,
+        highlight: (code, lang) => {
+          if (lang && hljs.getLanguage(lang)) {
+            return hljs.highlight(code, { language: lang }).value
+          }
+          return hljs.highlightAuto(code).value
+        },
+      })
+    },
   },
   async created() {
     await this.runInitialization()
